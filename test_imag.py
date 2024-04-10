@@ -4,7 +4,7 @@ from PIL import Image
 
 start_time = time.time()
 # Définissez le répertoire contenant les images
-dossier_images = "Parallel_Programming/Image_reader/images/200k"
+dossier_images = "Parallel_Programming/Image_reader/images/7k"
 
 # Obtenez la liste de tous les fichiers d'image dans le dossier
 fichiers_images = [f for f in os.listdir(dossier_images) if f.lower().endswith((".jpg", ".jpeg"))]

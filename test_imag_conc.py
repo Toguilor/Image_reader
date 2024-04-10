@@ -3,6 +3,9 @@ import time
 from PIL import Image
 import concurrent.futures
 
+def get_image_files(dossier_images):
+    return [os.path.join(dossier_images, f) for f in os.listdir(dossier_images) if f.lower().endswith((".jpg", ".jpeg"))]
+
 # Définir la fonction de traitement de chaque image
 def process_image(chemin_image):
     # Ouvrir et traiter l'image
@@ -15,16 +18,37 @@ def process_image(chemin_image):
 
 if __name__ == "__main__":
     # Définir le répertoire contenant les images
-    dossier_images = "Parallel_Programming/Image_reader/images/200k"
+    dossier_images = "Parallel_Programming/Image_reader/images/7k"
 
+    # Nombre de threads à utiliser
+    nombre_threads = os.cpu_count()
+    
+    start_time = time.time()
     # Obtenez la liste de tous les fichiers d'image dans le dossier
-    fichiers_images = [os.path.join(dossier_images, f) for f in os.listdir(dossier_images) if f.lower().endswith((".jpg", ".jpeg"))]
+    #fichiers_images = [os.path.join(dossier_images, f) for f in os.listdir(dossier_images) if f.lower().endswith((".jpg", ".jpeg"))]
+    
+    # Créez un pool de threads pour l'obtention parallèle des fichiers image
+    with concurrent.futures.ThreadPoolExecutor(max_workers=nombre_threads) as executor:
+        # Lancez l'obtention de la liste de fichiers image dans des threads séparés
+        future = executor.submit(get_image_files, dossier_images)
+        fichiers_images = future.result()
+    end_time = time.time()
+    exe_time = end_time - start_time
+    print(f"Temps de lecture de {len(fichiers_images)} images:", exe_time, "secondes")
 
     # Triez les fichiers d'image par ordre alphabétique
     fichiers_images.sort()
 
-    # Nombre de threads à utiliser
-    nombre_threads = os.cpu_count()
+    if len(fichiers_images) <= 2000:
+        nombre_threads = 2
+    elif len(fichiers_images) <= 5000:
+        nombre_threads = 5
+    elif len(fichiers_images) <= 10000:
+        nombre_threads = 8
+    elif len(fichiers_images) <= 15000:
+        nombre_threads = 12
+    else:
+        nombre_threads = os.cpu_count
 
     start_time = time.time()
     # Créer un pool de threads pour le traitement parallèle des images
